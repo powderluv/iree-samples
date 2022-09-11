@@ -49,5 +49,4 @@ FetchContent_GetProperties(iree SOURCE_DIR IREE_SOURCE_DIR)
 # Individual samples
 #-------------------------------------------------------------------------------
 
-add_subdirectory(vision_inference)
 add_subdirectory(vulkan_gui)

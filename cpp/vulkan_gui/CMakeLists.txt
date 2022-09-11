@@ -19,14 +19,6 @@ if(NOT Vulkan_FOUND)
   return()
 endif()
 
-# vcpkg install imgui[vulkan-binding,sdl2-binding]
-#   tested with versions 1.83 - 1.87#1
-find_package(imgui)
-if(NOT imgui_FOUND)
-  message(STATUS "Could not find Dear ImGui, skipping vulkan_gui sample")
-  return()
-endif()
-
 # vcpkg install sdl2[vulkan]
 #   tested with versions 2.0.14#4 - 2.0.22#1
 find_package(SDL2)
@@ -68,19 +60,39 @@ target_sources(iree_samples_vulkan_gui_simple_mul_bytecode_module_c
     simple_mul_bytecode_module_c.c
 )
 
+
+FetchContent_Declare(
+  imgui
+  GIT_REPOSITORY https://github.com/ocornut/imgui
+  GIT_TAG        master
+)
+
+FetchContent_MakeAvailable(imgui)
+
+# Dear ImGui
+set(IMGUI_DIR ${CMAKE_BINARY_DIR}/_deps/imgui-src)
+message("Looking for Imgui in ${IMGUI_DIR}")
+include_directories(${IMGUI_DIR} ${IMGUI_DIR}/backends ..)
+
 # Define the sample executable.
 set(_NAME "iree-samples-vulkan-gui")
 add_executable(${_NAME} "")
 target_sources(${_NAME}
   PRIVATE
     vulkan_inference_gui.cc
+    "${IMGUI_DIR}/backends/imgui_impl_sdl.cpp"
+    "${IMGUI_DIR}/backends/imgui_impl_vulkan.cpp"
+    "${IMGUI_DIR}/imgui.cpp"
+    "${IMGUI_DIR}/imgui_draw.cpp"
+    "${IMGUI_DIR}/imgui_demo.cpp"
+    "${IMGUI_DIR}/imgui_tables.cpp"
+    "${IMGUI_DIR}/imgui_widgets.cpp"
 )
 set_target_properties(${_NAME} PROPERTIES OUTPUT_NAME "iree-samples-vulkan-gui")
 target_include_directories(${_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
 )
 target_link_libraries(${_NAME}
-  imgui::imgui
   SDL2::SDL2
   Vulkan::Vulkan
   #
